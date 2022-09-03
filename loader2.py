@@ -48,6 +48,8 @@ class MySQLTable:
         row_count = 0
         match_key = None
         row = next(reader)
+        # This data is really shitty and unreliable. Serious amateutr crap...
+        # Some rows contain meaningless values of 1,2,3,4.... We have3 to ignore these rows. Hence -10.
         while len(row) > len(self._column_names) - 10:
             if auto_inc:
                 values = row[1:]
