@@ -239,5 +239,7 @@ def main():
     if filename != None:
         do_load(engine, filename)
 
+    engine.dispose()
+
 if __name__ == "__main__":
     main()
