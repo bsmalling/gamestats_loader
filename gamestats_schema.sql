@@ -125,7 +125,7 @@ ALTER TABLE `player_rounds` ADD INDEX player_name_index (player_name);
 CREATE TABLE `round_events`(
 	`match_key` INT NOT NULL,
     `round` BIGINT NOT NULL,
-	`time_into_round` BIGINT NOT NULL,
+	`time_into_round` BIGINT,
     `vod_time` TIME,
     `team_name` VARCHAR(100),
     `type` VARCHAR(50),
