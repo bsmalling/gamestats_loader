@@ -161,7 +161,7 @@ def do_load(engine, filename):
     try:
         reader = csv.reader(fh)
         row = next(reader)
-        match_key = -1
+        match_key = None
         while True:
             if len(row) <= 1:
                 row = next(reader)
