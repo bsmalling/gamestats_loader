@@ -149,6 +149,9 @@ class MySQLTable:
         return ",".join(sql_values)
 
 def do_load(engine, filename):
+    if verbose:
+        print(f"Loading {filename}...")
+
     matches = MySQLTable("matches", engine)
     performance = MySQLTable("performance", engine)
     player_rounds = MySQLTable("player_rounds", engine)
@@ -234,8 +237,6 @@ def main():
         do_reset(engine)
 
     if filename != None:
-        if verbose:
-            print(f"Loading {filename}...")
         do_load(engine, filename)
 
 if __name__ == "__main__":
