@@ -18,7 +18,7 @@ class MySQLTable:
 
     def __init__(self, table_name, engine):
         self._table_name = table_name
-        results = engine.execute(f"DESCRIBE " + table_name)
+        results = engine.execute(f"DESCRIBE `{table_name}`")
         self._column_names = list()
         self._column_info = dict()
         for col_name, col_type, nullable, key, default, extra in results:
