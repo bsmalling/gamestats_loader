@@ -11,7 +11,7 @@ import re
 
 verbose = False
 
-class MySQLTable:
+class MySQLTableLoader:
     """
     A class used to fill a MySQL table from corresponding CSV data.
     """
@@ -154,10 +154,10 @@ def do_load(engine, filename):
     if verbose:
         print(f"Loading {filename}...")
 
-    matches = MySQLTable("matches", engine)
-    performance = MySQLTable("performance", engine)
-    player_rounds = MySQLTable("player_rounds", engine)
-    round_events = MySQLTable("round_events", engine)
+    matches = MySQLTableLoader("matches", engine)
+    performance = MySQLTableLoader("performance", engine)
+    player_rounds = MySQLTableLoader("player_rounds", engine)
+    round_events = MySQLTableLoader("round_events", engine)
 
     fh = open(filename)
     try:
