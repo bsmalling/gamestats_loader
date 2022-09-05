@@ -65,10 +65,10 @@ class MySQLTableLoader:
             query = "INSERT INTO `%s` (%s) VALUES (%s)" % (self._table_name, table_columns, table_values)
             try:
                 result = engine.execute(query)
-                row_count += 1
                 if auto_inc:
                     match_key = result.lastrowid
                 row = next(reader)
+                row_count += 1
             except:
                 print(query)
                 raise
@@ -125,7 +125,7 @@ class MySQLTableLoader:
                 continue
 
             if col_type == "varchar":
-                if (value == "-"):
+                if value == "" or value == "-":
                     sql_values.append("NULL")
                 else:
                     sql_values.append("'" + value + "'")
