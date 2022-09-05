@@ -209,7 +209,7 @@ def do_reset(engine):
         print("Database reset.")
 
 def show_help():
-    print("loader2.py [arguments...]")
+    print("loader.py [arguments...]")
     print("Arguments:")
     print(str.ljust("  -l or --load [filename]", 30) + "Load [filename]")
     print(str.ljust("  -r or --reset", 30) + "Reset database")
