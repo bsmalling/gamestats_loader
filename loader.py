@@ -63,12 +63,15 @@ class MySQLTableLoader:
             table_columns = self._format_column_names()
             table_values = self._format_column_values(values) 
             query = "INSERT INTO `%s` (%s) VALUES (%s)" % (self._table_name, table_columns, table_values)
-            #print(query)
-            result = engine.execute(query)
-            row_count += 1
-            if auto_inc:
-                match_key = result.lastrowid
-            row = next(reader)
+            try:
+                result = engine.execute(query)
+                row_count += 1
+                if auto_inc:
+                    match_key = result.lastrowid
+                row = next(reader)
+            except:
+                print(query)
+                raise
 
         if _g_verbose:
             print(f"Loaded {row_count} rows.")
