@@ -174,16 +174,16 @@ def do_load(engine, filename):
 
             label = row[1]
             if label == "MATCH OVERVIEW":
-                next(reader) # Skip header
+                next(reader) # Skip to header
                 match_key = matches.load(reader, engine)
             elif label == "MATCH PERFORMANCE":
-                next(reader) # Skip header
+                next(reader) # Skip to header
                 performance.load(reader, engine, match_key)
             elif label == "PLAYER ROUNDS DATA":
-                next(reader) # Skip header
+                next(reader) # Skip to header
                 player_rounds.load(reader, engine, match_key)
             elif label == "ROUND EVENTS BREAKDOWN":
-                next(reader) # Skip header
+                next(reader) # Skip to header
                 round_events.load(reader, engine, match_key)
                 break
 
@@ -217,16 +217,17 @@ def main():
     global _g_verbose
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "l:rvh", ["load=", "reset", "verbose", "help"])
+        # Ignoring any extraneous args from getopt. An error might be better?
+        opts, _ = getopt.getopt(sys.argv[1:], "l:rvh", ["load=", "reset", "verbose", "help"])
     except getopt.GetoptError:
         show_help()
         sys.exit(2)
 
     reset = False
-    filename = None
+    filenames = []
     for opt, arg in opts:
         if opt in ("-l", "--load"):
-            filename = arg
+            filenames.append(arg)
         elif opt in ("-r", "--reset"):
             reset = True
         elif opt in ("-v", "--verbose"):
@@ -237,14 +238,17 @@ def main():
 
     uri = "mysql+pymysql://appuser:%s@localhost/gamestats" % os.environ["GAMESTATS_APPUSER_PWD"]
     engine = sa.create_engine(uri)
+    try:
 
-    if reset:
-        do_reset(engine)
+        if reset:
+            do_reset(engine)
 
-    if filename != None:
-        do_load(engine, filename)
+        if len(filenames) > 0:
+            for filename in filenames:
+                do_load(engine, filename)
 
-    engine.dispose()
+    finally:
+        engine.dispose()
 
 if __name__ == "__main__":
     main()
