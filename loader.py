@@ -43,13 +43,14 @@ class MySQLTableLoader:
         if verbose:
             print(f"Loading table {self._table_name}...")
 
+        # Assumes that any auto_increment column is always the first column.
         auto_inc = self._column_info[self._column_names[0]][1]
 
         row_count = 0
         match_key = None
         row = next(reader)
-        # This data is really shitty and unreliable. Serious amateutr crap...
-        # Some rows contain meaningless values of 1,2,3,4.... We have3 to ignore these rows. Hence -10.
+        # This data is really shitty and unreliable. Serious amateur crap...
+        # Some rows contain meaningless values of 1,2,3,4... We have to ignore these rows. Hence -10.
         while len(row) > len(self._column_names) - 10:
             if auto_inc:
                 values = row[1:]
@@ -85,7 +86,7 @@ class MySQLTableLoader:
 
     def _format_column_values(self, values):
         while len(values) < len(self._column_names):
-            values.append('')
+            values.append("")
 
         index = 0
         sql_values = []
@@ -119,7 +120,7 @@ class MySQLTableLoader:
                 else:
                     sql_values.append(value)
                 continue
-               
+
             if col_type == "varchar":
                 if (value == "-"):
                     sql_values.append("NULL")
