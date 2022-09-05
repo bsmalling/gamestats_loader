@@ -9,7 +9,7 @@ import getopt
 import os
 import re
 
-verbose = False
+_g_verbose = False
 
 class MySQLTableLoader:
     """
@@ -40,7 +40,7 @@ class MySQLTableLoader:
         return self._column_info
 
     def load(self, reader, engine, key=None):
-        if verbose:
+        if _g_verbose:
             print(f"Loading table {self._table_name}...")
 
         # Assumes that any auto_increment column is always the first column.
@@ -70,7 +70,7 @@ class MySQLTableLoader:
                 match_key = result.lastrowid
             row = next(reader)
 
-        if verbose:
+        if _g_verbose:
             print(f"Loaded {row_count} rows.")
         return match_key
 
@@ -151,8 +151,10 @@ class MySQLTableLoader:
 
         return ",".join(sql_values)
 
+# end class MySQLTableLoader
+
 def do_load(engine, filename):
-    if verbose:
+    if _g_verbose:
         print(f"Loading {filename}...")
 
     matches = MySQLTableLoader("matches", engine)
@@ -190,7 +192,7 @@ def do_load(engine, filename):
         fh.close()
 
 def do_reset(engine):
-    if verbose:
+    if _g_verbose:
         print("Resetting database...")
 
     engine.execute("SET FOREIGN_KEY_CHECKS = 0")
@@ -200,7 +202,7 @@ def do_reset(engine):
     engine.execute("TRUNCATE TABLE `matches`")
     engine.execute("SET FOREIGN_KEY_CHECKS = 1")
 
-    if verbose:
+    if _g_verbose:
         print("Database reset.")
 
 def show_help():
@@ -208,11 +210,11 @@ def show_help():
     print("Arguments:")
     print(str.ljust("  -l or --load [filename]", 30) + "Load [filename]")
     print(str.ljust("  -r or --reset", 30) + "Reset database")
-    print(str.ljust("  -v or --verbose", 30) + "Verbose")
+    print(str.ljust("  -v or --verbose", 30) + "Verbose output")
     print(str.ljust("  -h or --help", 30) + "Show help")
 
 def main():
-    global verbose
+    global _g_verbose
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "l:rvh", ["load=", "reset", "verbose", "help"])
@@ -228,7 +230,7 @@ def main():
         elif opt in ("-r", "--reset"):
             reset = True
         elif opt in ("-v", "--verbose"):
-            verbose = True
+            _g_verbose = True
         elif opt in ("-h", "--help"):
             show_help()
             sys.exit(0)
