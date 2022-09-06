@@ -16,8 +16,9 @@ class MySQLTableLoader:
     A class used to fill a MySQL table from corresponding CSV data.
     """
 
-    def __init__(self, table_name, engine):
+    def __init__(self, table_name, engine, verbose=False):
         self._table_name = table_name
+        self._verbose = verbose
         results = engine.execute(f"DESCRIBE `{table_name}`")
         self._column_names = list()
         self._column_info = dict()
@@ -40,7 +41,7 @@ class MySQLTableLoader:
         return self._column_info
 
     def load(self, reader, engine, key=None):
-        if VERBOSE:
+        if self._verbose:
             print(f"Loading table {self._table_name}...")
 
         # Assumes that any auto_increment column is always the first column.
@@ -75,7 +76,7 @@ class MySQLTableLoader:
                 print(query)
                 raise
 
-        if VERBOSE:
+        if self._verbose:
             print(f"Loaded {row_count} rows.")
         return match_key
 
@@ -162,13 +163,13 @@ def do_load(engine, filename):
     if VERBOSE:
         print(f"Loading {filename}...")
 
-    matches = MySQLTableLoader("matches", engine)
-    performance = MySQLTableLoader("performance", engine)
-    player_rounds = MySQLTableLoader("player_rounds", engine)
-    round_events = MySQLTableLoader("round_events", engine)
+    matches = MySQLTableLoader("matches", engine, VERBOSE)
+    performance = MySQLTableLoader("performance", engine, VERBOSE)
+    player_rounds = MySQLTableLoader("player_rounds", engine, VERBOSE)
+    round_events = MySQLTableLoader("round_events", engine, VERBOSE)
 
-    with open(filename) as fh:
-        reader = csv.reader(fh)
+    with open(filename) as file:
+        reader = csv.reader(file)
         row = next(reader)
         match_key = None
         while True:
