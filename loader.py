@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
 import re
-import csv
 import sys
+import csv
 import getopt
 import pymysql
 import cryptography
@@ -19,9 +19,10 @@ class MySQLTableLoader:
     def __init__(self, table_name, engine, verbose=False):
         self._table_name = table_name
         self._verbose = verbose
-        results = engine.execute(f"DESCRIBE `{table_name}`")
         self._column_names = list()
         self._column_info = dict()
+
+        results = engine.execute(f"DESCRIBE `{table_name}`")
         for col_name, col_type, _, _, _, extra in results:
             self.column_names.append(col_name)
             col_type = re.search(r"(\w+)", col_type).group()
@@ -49,8 +50,9 @@ class MySQLTableLoader:
 
         row_count = 0
         match_key = None
-        row = next(reader)
-        # This data is really shitty and unreliable. Serious amateur crap...
+        row = next(reader) # Skip header
+
+        # This data is really shitty and unreliable.
         # Some rows contain meaningless values of 1,2,3,4...
         # We have to ignore these rows. Hence -10.
         while len(row) > len(self._column_names) - 10:
@@ -70,11 +72,11 @@ class MySQLTableLoader:
                 result = engine.execute(query)
                 if auto_inc:
                     match_key = result.lastrowid
-                row = next(reader)
-                row_count += 1
             except:
                 print(query)
                 raise
+            row = next(reader)
+            row_count += 1
 
         if self._verbose:
             print(f"Loaded {row_count} rows.")
