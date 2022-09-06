@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-import sqlalchemy as sa
-import cryptography
-from dateutil import parser as dtparser
-import pymysql
+import os
+import re
 import csv
 import sys
 import getopt
-import os
-import re
+import pymysql
+import cryptography
+import sqlalchemy as sa
+from dateutil import parser as dtparser
 
-_g_verbose = False
+VERBOSE = False
 
 class MySQLTableLoader:
     """
@@ -21,9 +21,9 @@ class MySQLTableLoader:
         results = engine.execute(f"DESCRIBE `{table_name}`")
         self._column_names = list()
         self._column_info = dict()
-        for col_name, col_type, nullable, key, default, extra in results:
+        for col_name, col_type, _, _, _, extra in results:
             self.column_names.append(col_name)
-            col_type = re.search("(\w+)", col_type).group()
+            col_type = re.search(r"(\w+)", col_type).group()
             extra = ("auto_increment" in extra)
             self._column_info[col_name] = (col_type, extra)
 
@@ -40,7 +40,7 @@ class MySQLTableLoader:
         return self._column_info
 
     def load(self, reader, engine, key=None):
-        if _g_verbose:
+        if VERBOSE:
             print(f"Loading table {self._table_name}...")
 
         # Assumes that any auto_increment column is always the first column.
@@ -50,19 +50,21 @@ class MySQLTableLoader:
         match_key = None
         row = next(reader)
         # This data is really shitty and unreliable. Serious amateur crap...
-        # Some rows contain meaningless values of 1,2,3,4... We have to ignore these rows. Hence -10.
+        # Some rows contain meaningless values of 1,2,3,4...
+        # We have to ignore these rows. Hence -10.
         while len(row) > len(self._column_names) - 10:
             if auto_inc:
                 values = row[1:]
             else:
                 values = row[2:]
 
-            if key != None:
+            if key is not None:
                 values.insert(0, str(key))
 
             table_columns = self._format_column_names()
-            table_values = self._format_column_values(values) 
-            query = "INSERT INTO `%s` (%s) VALUES (%s)" % (self._table_name, table_columns, table_values)
+            table_values = self._format_column_values(values)
+            query = "INSERT INTO `%s` (%s) VALUES (%s)" % \
+                (self._table_name, table_columns, table_values)
             try:
                 result = engine.execute(query)
                 if auto_inc:
@@ -73,7 +75,7 @@ class MySQLTableLoader:
                 print(query)
                 raise
 
-        if _g_verbose:
+        if VERBOSE:
             print(f"Loaded {row_count} rows.")
         return match_key
 
@@ -83,8 +85,8 @@ class MySQLTableLoader:
             _, auto_inc = self._column_info[col_name]
             if auto_inc:
                 continue
-            else:
-                sql_columns.append("`" + col_name + "`")
+
+            sql_columns.append("`" + col_name + "`")
         return ",".join(sql_columns)
 
     def _format_column_values(self, values):
@@ -102,21 +104,21 @@ class MySQLTableLoader:
             index += 1
 
             if col_type == "int":
-                if value == "" or value == "-" or value == "undefined":
+                if value in ("", "-", "undefined"):
                     sql_values.append("NULL")
                 else:
                     sql_values.append(value)
                 continue
 
             if col_type == "bigint":
-                if value == "" or value == "-" or value == "undefined" or value == "NaN":
+                if value in ("", "-", "undefined", "NaN"):
                     sql_values.append("NULL")
                 else:
                     sql_values.append(value)
                 continue
 
             if col_type == "float":
-                if value == "" or value == "NaN":
+                if value in ("", "NaN"):
                     sql_values.append("NULL")
                 elif value[-1] == "%":
                     sql_values.append(str(float(value[:-1]) / 100.0))
@@ -125,7 +127,7 @@ class MySQLTableLoader:
                 continue
 
             if col_type == "varchar":
-                if value == "" or value == "-":
+                if value in ("", "-"):
                     sql_values.append("NULL")
                 else:
                     sql_values.append("'" + value + "'")
@@ -157,7 +159,7 @@ class MySQLTableLoader:
 # end class MySQLTableLoader
 
 def do_load(engine, filename):
-    if _g_verbose:
+    if VERBOSE:
         print(f"Loading {filename}...")
 
     matches = MySQLTableLoader("matches", engine)
@@ -165,8 +167,7 @@ def do_load(engine, filename):
     player_rounds = MySQLTableLoader("player_rounds", engine)
     round_events = MySQLTableLoader("round_events", engine)
 
-    fh = open(filename)
-    try:
+    with open(filename) as fh:
         reader = csv.reader(fh)
         row = next(reader)
         match_key = None
@@ -191,11 +192,9 @@ def do_load(engine, filename):
                 break
 
             row = next(reader)
-    finally:
-        fh.close()
 
 def do_reset(engine):
-    if _g_verbose:
+    if VERBOSE:
         print("Resetting database...")
 
     engine.execute("SET FOREIGN_KEY_CHECKS = 0")
@@ -205,7 +204,7 @@ def do_reset(engine):
     engine.execute("TRUNCATE TABLE `matches`")
     engine.execute("SET FOREIGN_KEY_CHECKS = 1")
 
-    if _g_verbose:
+    if VERBOSE:
         print("Database reset.")
 
 def show_help():
@@ -217,7 +216,7 @@ def show_help():
     print(str.ljust("  -h or --help", 30) + "Show help")
 
 def main():
-    global _g_verbose
+    global VERBOSE
 
     try:
         # Ignoring any extraneous args from getopt. An error might be better?
@@ -234,7 +233,7 @@ def main():
         elif opt in ("-r", "--reset"):
             reset = True
         elif opt in ("-v", "--verbose"):
-            _g_verbose = True
+            VERBOSE = True
         elif opt in ("-h", "--help"):
             show_help()
             sys.exit(0)
