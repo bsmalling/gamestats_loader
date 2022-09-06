@@ -24,7 +24,7 @@ class MySQLTableLoader:
 
         results = engine.execute(f"DESCRIBE `{table_name}`")
         for col_name, col_type, _, _, _, extra in results:
-            self.column_names.append(col_name)
+            self._column_names.append(col_name)
             col_type = re.search(r"(\w+)", col_type).group()
             extra = ("auto_increment" in extra)
             self._column_info[col_name] = (col_type, extra)
@@ -32,14 +32,6 @@ class MySQLTableLoader:
     @property
     def table_name(self):
         return self._table_name
-
-    @property
-    def column_names(self):
-        return self._column_names
-
-    @property
-    def column_info(self):
-        return self._column_info
 
     def load(self, reader, engine, key=None):
         if self._verbose:
