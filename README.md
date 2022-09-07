@@ -14,7 +14,7 @@ The "SIXTH PICK OVERVIEW" section is completely ignored!
 
 The "PLAYER ROUNDS DATA" section is loaded into the "player_rounds" table.
 
-The "ROUND EVENTS BREAKDOWN" column is loaded into the "round_events" table.
+The "ROUND EVENTS BREAKDOWN" section is loaded into the "round_events" table.
 
 Steps to create the database:
 1. Create a MySql database/schema called "gamestats".
