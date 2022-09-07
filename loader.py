@@ -237,13 +237,13 @@ def main():
     if len(opts) == 0:
         help = True
 
+    if help:
+        show_help()
+        sys.exit(0)
+
     uri = "mysql+pymysql://appuser:%s@localhost/gamestats" % os.environ["GAMESTATS_APPUSER_PWD"]
     engine = sa.create_engine(uri)
     try:
-
-        if help:
-            show_help()
-            sys.exit(0)
 
         if reset:
             do_reset(engine)
