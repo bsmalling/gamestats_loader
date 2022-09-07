@@ -221,6 +221,7 @@ def main():
         show_help()
         sys.exit(2)
 
+    help = False
     reset = False
     filenames = []
     for opt, arg in opts:
@@ -231,12 +232,18 @@ def main():
         elif opt in ("-v", "--verbose"):
             VERBOSE = True
         elif opt in ("-h", "--help"):
-            show_help()
-            sys.exit(0)
+            help = True
+
+    if len(opts) == 0:
+        help = True
 
     uri = "mysql+pymysql://appuser:%s@localhost/gamestats" % os.environ["GAMESTATS_APPUSER_PWD"]
     engine = sa.create_engine(uri)
     try:
+
+        if help:
+            show_help()
+            sys.exit(0)
 
         if reset:
             do_reset(engine)
