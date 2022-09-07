@@ -165,6 +165,7 @@ def do_load(engine, filename):
     with open(filename) as file:
         reader = csv.reader(file)
         row = next(reader)
+
         match_key = None
         while True:
             if len(row) <= 1:
@@ -240,9 +241,8 @@ def main():
         if reset:
             do_reset(engine)
 
-        if len(filenames) > 0:
-            for filename in filenames:
-                do_load(engine, filename)
+        for filename in filenames:
+            do_load(engine, filename)
 
     finally:
         engine.dispose()
