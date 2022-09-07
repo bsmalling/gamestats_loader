@@ -18,12 +18,12 @@ The "ROUND EVENTS BREAKDOWN" column is loaded into the "round_events" table.
 
 Steps to create the database:
 1. Create a MySql database/schema called "gamestats".
-2. Create a user for the "gamestats" database called "appuser". Allows all basica commands (SELECT,INSERT,UPDATE,DELETE...).
+2. Create a user for the "gamestats" database called "appuser". Allow all basic commands (SELECT,INSERT,UPDATE,DELETE...).
 3. Run the "gamestats_schema.sql" script (as root) to create the database tables.
-4. Run the commented script (as root) to grant DROP access to "appuser".
-5. Create an environment variable called "GAMESTATS_APPUSER_PWD" to contain the "appuser" password.
-6. Download the CSV files into the "../gamestats_data" directory.
-7. Run the loader.zsh script to load all of the CSV data files from the "../gamestats_data" directory.
+4. Run the commented script (as root) to GRANT DROP access to "appuser".
+5. Create an environment variable called "GAMESTATS_APPUSER_PWD" that contains the "appuser" password.
+6. Download the CSV files into the "../gamestats_data" directory (will be searched recursively so don't be shy with subdirectories).
+7. Run the loader.zsh script to load all of the CSV data files from the "../gamestats_data" directory (recursively).
 8. Query the data as is (from MySql) or use a Jupyter Notebook to analyze the data.
 
 Try this in a Jupyter Notebook:
