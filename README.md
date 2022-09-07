@@ -1,6 +1,6 @@
 # gamestats_loader
 Python script for loading game stats data into a MySql database from CSV files. The CSV files contain five sections:
-1. MATCH OVERVIEW (one match per file)
+1. MATCH OVERVIEW (one match per file!)
 2. MATCH PERFORMANCE
 3. SIXTH PICK OVERVIEW (ignored!)
 4. PLAYER ROUNDS DATA
