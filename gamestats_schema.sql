@@ -1,9 +1,11 @@
 /*
+-- Run to delete existing table definitions and prepare to re-CREATE the tables from scratch
 DROP TABLE `round_events`;
 DROP TABLE `player_rounds`;
 DROP TABLE `performance`;
 DROP TABLE `matches`;
 
+-- Run to empty existing tables of data (without affecting schema)
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE `round_events`;
 TRUNCATE TABLE `player_rounds`;
@@ -11,11 +13,14 @@ TRUNCATE TABLE `performance`;
 TRUNCATE TABLE `matches`;
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Run after CREATE-ing tables to insure appuser can TRUNCATE (clear) existing tables
 GRANT DROP ON TABLE `matches` TO 'appuser'@'%';
 GRANT DROP ON TABLE `performance` TO 'appuser'@'%';
 GRANT DROP ON TABLE `player_rounds` TO 'appuser'@'%';
 GRANT DROP ON TABLE `round_events` TO 'appuser'@'%';
 */
+
+-- Run this on an empty database to CREATE all of the tables
 
 CREATE TABLE `matches`(
    `match_key` INT NOT NULL AUTO_INCREMENT,
