@@ -1,3 +1,3 @@
 #!/bin/zsh
-python loader.py --verbose --reset
-find ../gamestats_data -type f -name \*.csv -exec python loader.py --verbose --load '{}' \;
+python3 loader.py --verbose --reset
+find ../gamestats_data -type f -name \*.csv -exec python3 loader.py --verbose --load '{}' \;
