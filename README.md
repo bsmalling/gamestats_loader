@@ -1,8 +1,8 @@
 # gamestats_loader
 
 Directories:
-    gamestats_loader - contains Python code and Z Shell (.zsh) script to recursively load all CSV files from the gamestats_data directory. This directory contains the contents of this GitHub repository.
-    gamestats_data - contains collected CSV files (nested as necessary in subdirectories or not). There is no GitHub repository for this data. You must gather and save it on your own from an external source.
+- gamestats_loader - contains Python code and Z Shell (.zsh) script to recursively load all CSV files from the gamestats_data directory. This directory contains the contents of this GitHub repository.
+- gamestats_data - contains collected CSV files (nested as necessary in subdirectories or not). There is no GitHub repository for this data. You must gather and save it on your own from an external source.
 
 NOTE: the gamestats_loader and gamestats_data directories must be in the same parent directory. They are sibling directories.
 
