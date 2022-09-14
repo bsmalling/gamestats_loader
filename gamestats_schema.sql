@@ -1,4 +1,4 @@
-USE gamestats;
+USE `gamestats`;
 
 /*
 -- Run to delete existing table definitions and prepare to re-CREATE the tables from scratch
