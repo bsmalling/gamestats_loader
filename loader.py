@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+
+"""gamestats loader
+
+    Loads game statistics from a CSV file into the local gamestats MySQL database.
+    The database table columns must match the columns in the CSV file (in order)!
+"""
+
 import os
 import re
 import sys
@@ -22,6 +29,7 @@ class MySQLTableLoader:
         self._column_names = list()
         self._column_info = dict()
 
+        # Extract the current table schema from the database.
         results = engine.execute(f"DESCRIBE `{table_name}`")
         for col_name, col_type, _, _, _, extra in results:
             self._column_names.append(col_name)
@@ -31,9 +39,17 @@ class MySQLTableLoader:
 
     @property
     def table_name(self):
+        """Returns the name of the table."""
         return self._table_name
 
     def load(self, reader, engine, key=None):
+        """Loads a data section from CSV reader into this database table. The key
+        should contain the value of a previous auto-increment insert (if applicable).
+
+        Returns:
+            The new auto-increment value (if applicable), otherwise None.
+        """
+
         if self._verbose:
             print(f"Loading table {self._table_name}...")
 
@@ -49,10 +65,13 @@ class MySQLTableLoader:
         # We have to ignore these rows. Hence -10.
         while len(row) > len(self._column_names) - 10:
             if auto_inc:
+                # Load including match_id column (matches table).
                 values = row[1:]
             else:
+                # Load excluding match_id column (other tables).
                 values = row[2:]
 
+            # Insert previous auto-increment value into values.
             if key is not None:
                 values.insert(0, str(key))
 
@@ -78,13 +97,15 @@ class MySQLTableLoader:
         sql_columns = []
         for col_name in self._column_names:
             _, auto_inc = self._column_info[col_name]
+            # auto-increment columns are not inserted.
             if auto_inc:
                 continue
-
             sql_columns.append("`" + col_name + "`")
+
         return ",".join(sql_columns)
 
     def _format_column_values(self, values):
+        # Make sure each column has a value
         while len(values) < len(self._column_names):
             values.append("")
 
@@ -94,6 +115,7 @@ class MySQLTableLoader:
             value = values[index]
 
             col_type, auto_inc = self._column_info[col_name]
+            # auto-increment columns are not inserted.
             if auto_inc:
                 continue
             index += 1
@@ -140,7 +162,7 @@ class MySQLTableLoader:
                     sql_values.append("'" + value + "'")
                 continue
 
-            if col_type == "tinyint" or col_type == "boolean":
+            if col_type in ("tinyint", "boolean"):
                 if value == "":
                     sql_values.append("NULL")
                 else:
@@ -154,6 +176,7 @@ class MySQLTableLoader:
 # end class MySQLTableLoader
 
 def do_load(engine, filename):
+    """Loads all sections of data from the specified CSV file."""
     if VERBOSE:
         print(f"Loading {filename}...")
 
@@ -190,6 +213,7 @@ def do_load(engine, filename):
             row = next(reader)
 
 def do_reset(engine):
+    """Resets (or empties) all of the database tables."""
     if VERBOSE:
         print("Resetting database...")
 
@@ -204,6 +228,7 @@ def do_reset(engine):
         print("Database reset.")
 
 def show_help():
+    """Shows help message with arguments."""
     print("loader.py [arguments...]")
     print("Arguments:")
     print(str.ljust("  -l or --load [filename]", 30) + "Load [filename]")
@@ -221,9 +246,9 @@ def main():
         show_help()
         sys.exit(2)
 
-    help = False
     reset = False
     filenames = []
+    do_help = False
     for opt, arg in opts:
         if opt in ("-l", "--load"):
             filenames.append(arg)
@@ -232,15 +257,14 @@ def main():
         elif opt in ("-v", "--verbose"):
             VERBOSE = True
         elif opt in ("-h", "--help"):
-            help = True
+            do_help = True
 
-    if len(opts) == 0:
-        help = True
-
-    if help:
+    if do_help or len(opts) == 0:
         show_help()
         sys.exit(0)
 
+    # NOTE: This expects an environment variable called "GAMESTATS_APPUSER_PWD"
+    # containing the MySQL database password. The user is expected to be "appuser".
     uri = "mysql+pymysql://appuser:%s@localhost/gamestats" % os.environ["GAMESTATS_APPUSER_PWD"]
     engine = sa.create_engine(uri)
     try:

@@ -1,3 +1,5 @@
+USE gamestats;
+
 /*
 -- Run to delete existing table definitions and prepare to re-CREATE the tables from scratch
 DROP TABLE `round_events`;
@@ -13,7 +15,7 @@ TRUNCATE TABLE `performance`;
 TRUNCATE TABLE `matches`;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- Run after CREATE-ing tables to insure appuser can TRUNCATE (clear) existing tables
+-- Run after CREATE-ing tables to insure appuser can TRUNCATE (reset) existing tables
 GRANT DROP ON TABLE `matches` TO 'appuser'@'%';
 GRANT DROP ON TABLE `performance` TO 'appuser'@'%';
 GRANT DROP ON TABLE `player_rounds` TO 'appuser'@'%';
