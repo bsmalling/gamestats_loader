@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import unittest
 from unittest.mock import Mock
 from loader import MySQLTableLoader
