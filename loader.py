@@ -24,23 +24,23 @@ class MySQLTableLoader:
     """
 
     def __init__(self, table_name, engine, verbose=False):
-        self._table_name = table_name
-        self._verbose = verbose
-        self._column_names = list()
-        self._column_info = dict()
+        self.__table_name = table_name
+        self.__verbose = verbose
+        self.__column_names = list()
+        self.__column_info = dict()
 
         # Extract the current table schema from the database.
         results = engine.execute(f"DESCRIBE `{table_name}`")
         for col_name, col_type, _, _, _, extra in results:
-            self._column_names.append(col_name)
+            self.__column_names.append(col_name)
             col_type = re.search(r"(\w+)", col_type).group()
             extra = ("auto_increment" in extra)
-            self._column_info[col_name] = (col_type, extra)
+            self.__column_info[col_name] = (col_type, extra)
 
     @property
     def table_name(self):
         """Returns the name of the table."""
-        return self._table_name
+        return self.__table_name
 
     def load(self, reader, engine, key=None):
         """Loads a data section from CSV reader into this database table. The key
@@ -50,11 +50,11 @@ class MySQLTableLoader:
             The new auto-increment value (if applicable), otherwise None.
         """
 
-        if self._verbose:
-            print(f"Loading table {self._table_name}...")
+        if self.__verbose:
+            print(f"Loading table {self.__table_name}...")
 
         # Assumes that any auto_increment column is always the first column.
-        auto_inc = self._column_info[self._column_names[0]][1]
+        auto_inc = self.__column_info[self.__column_names[0]][1]
 
         row_count = 0
         match_key = None
@@ -63,7 +63,7 @@ class MySQLTableLoader:
         # This data is really shitty and unreliable.
         # Some rows contain meaningless values of 1,2,3,4...
         # We have to ignore these rows. Hence -10.
-        while len(row) > len(self._column_names) - 10:
+        while len(row) > len(self.__column_names) - 10:
             if auto_inc:
                 # Load including match_id column (matches table).
                 values = row[1:]
@@ -75,10 +75,10 @@ class MySQLTableLoader:
             if key is not None:
                 values.insert(0, str(key))
 
-            table_columns = self._format_column_names()
+            table_columns = self._format__column_names()
             table_values = self._format_column_values(values)
             query = "INSERT INTO `%s` (%s) VALUES (%s)" % \
-                (self._table_name, table_columns, table_values)
+                (self.__table_name, table_columns, table_values)
             try:
                 result = engine.execute(query)
                 if auto_inc:
@@ -89,14 +89,14 @@ class MySQLTableLoader:
             row = next(reader)
             row_count += 1
 
-        if self._verbose:
+        if self.__verbose:
             print(f"Loaded {row_count} rows.")
         return match_key
 
-    def _format_column_names(self):
+    def _format__column_names(self):
         sql_columns = []
-        for col_name in self._column_names:
-            _, auto_inc = self._column_info[col_name]
+        for col_name in self.__column_names:
+            _, auto_inc = self.__column_info[col_name]
             # auto-increment columns are not inserted.
             if auto_inc:
                 continue
@@ -106,15 +106,15 @@ class MySQLTableLoader:
 
     def _format_column_values(self, values):
         # Make sure each column has a value
-        while len(values) < len(self._column_names):
+        while len(values) < len(self.__column_names):
             values.append("")
 
         index = 0
         sql_values = []
-        for col_name in self._column_names:
+        for col_name in self.__column_names:
             value = values[index]
 
-            col_type, auto_inc = self._column_info[col_name]
+            col_type, auto_inc = self.__column_info[col_name]
             # auto-increment columns are not inserted.
             if auto_inc:
                 continue
